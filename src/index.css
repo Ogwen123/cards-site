@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "poppins";
+    src: url("/src/assets/Poppins-Regular.ttf");
+}
+
+/* trying different fonts for the title in the nav bar */
+
+
+@font-face {
+    font-family: "title5";
+    src: url("/src/assets/vipnagorgialla.otf");
+}
+
+@font-face {
+    font-family: "blocky";
+    src: url("/src/assets/RussoOne-Regular.ttf");
+}
+
+body {
+    padding: 10px;
+    font-family: "poppins", sans-serif;
+    background-color: #22272e;
+    color: white;
+}
+
+.title {
+  font-family: "title5", sans-serif;
+}
+
+.blocky {
+  font-family: "blocky", sans-serif;
+}
+
+li + li {
+  margin: 10px 0;
+}
+
+@layer components {
+  .fc {
+    @apply flex items-center justify-center
+  }
+  .form-input {
+    @apply rounded-lg p-[10px] w-full my-[5px] bg-bgdark border-solid border-2 border-bgdark focus:border-solid focus:border-2 focus:border-main focus:outline-none
+  }
+  .form-input-small {
+    @apply rounded-lg p-[10px] w-[calc(50%-5px)] my-[5px] bg-bgdark border-solid border-2 border-bgdark focus:border-solid focus:border-2 focus:border-main focus:outline-none
+  }
+
+  .form {
+    @apply w-2/5
+  }
+  .button {
+    @apply bg-main w-full rounded-lg p-[10px] my-[5px] hover:bg-maindark
+  }
+  .mh-all {
+    @apply min-h-[calc(100vh-10px)]
+  }
+  .mh-body {
+    @apply min-h-[calc(100vh-98px)]
+  }
+}

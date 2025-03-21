@@ -1,0 +1,27 @@
+{
+    "API_URL": {
+        "DEV": "http://192.168.1.199:3333/api/v0/",
+        "PROD": "https://cards.ben-services.eu.org/api/v0/"
+    },
+    "layout": {
+        "compactWidth": 700,
+        "profileDecksPerPage": 12
+    },
+    "alertLength": 5000,
+    "flags": {
+        "ADMIN": 1
+    },
+    "autosave": {
+        "create_name": "create_deck_autosave",
+        "edit_name": "edit_deck_autosave"
+    },
+    "guides": {
+        "guides": [
+            {
+                "name": "Import from Quizlet",
+                "link": "quizlet-export",
+                "description": "A guide on importing the cards from a quizlet deck."
+            }
+        ]
+    }
+}
