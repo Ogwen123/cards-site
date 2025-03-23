@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { title } from '../../utils/string'
 import { SH } from '../../utils/storageHandler'
 import config from "../../config.json"
@@ -42,7 +42,7 @@ const Dashboard = () => {
     const [width, setWidth] = React.useState<number>(window.innerWidth)
     // @ts-ignore
     const [id, setId] = React.useState<string>(SH.get("user").user.id)
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alertData, setAlertData] = React.useState<AlertData>(alertReset)
     const [selectedTab, setSelectedTab] = React.useState<Tab>("ACCOUNT")
     const [user, setUser] = React.useState<User>()
 
@@ -56,7 +56,7 @@ const Dashboard = () => {
 
     React.useEffect(() => {
         const fetchUser = async () => {
-            const res = await fetch(getApiUrl() + "users/@me", {
+            const res = await fetch(getApiUrl("auth") + "users/@me", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -84,7 +84,13 @@ const Dashboard = () => {
 
     return (
         <div className='flex items-center flex-col py-[10px]'>
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             {
                 id ?
                     <div className='w-full'>

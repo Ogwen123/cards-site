@@ -80,11 +80,19 @@ export type CardCreate = {
     back: string,
 }
 
-export type AlertData = [string, boolean, "SUCCESS" | "ERROR" | "NONE"]
+export type AlertData = [string | [string, string], "SUCCESS" | "ERROR", boolean]
 
 export type SortOption = "RATING" | "NEWEST" | "OLDEST"
 
 export type SortOptionObj = {
     option: SortOption,
     alias: "Rating" | "Newest" | "Oldest"
+}
+
+export type Details = {
+    firstname: string,
+    lastname: string,
+    username: string,
+    email: string,
+    password: string
 }

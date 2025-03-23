@@ -7,7 +7,6 @@ import RouteGuard from './RouteGuard'
 import Register from './components/account/Register'
 import Login from './components/account/Login'
 import Dashboard from './components/account/Dashboard'
-import Onboarding from './components/account/Onboarding'
 import NotFound from './components/NotFound'
 import DecksIndex from './components/decks/Index'
 import DecksSearch from './components/decks/Search'
@@ -51,11 +50,6 @@ const App = () => {
                     <Route
                         path="/account/register"
                         element={<RouteGuard page={<Register />} conditions={["NOT_LOGGED_IN"]} />}
-                    />
-
-                    <Route
-                        path="/account/onboarding"
-                        element={<RouteGuard page={<Onboarding />} conditions={["NOT_LOGGED_IN"]} />}
                     />
 
                     <Route

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
 import { FieldErrors } from '../../utils/fieldError'
@@ -9,7 +9,7 @@ import { AlertData } from '../../global/types'
 
 const Login = () => {
 
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [fieldErrors] = React.useState<FieldErrors>(new FieldErrors())
     const [loading, setLoading] = React.useState<boolean>(false)
 
@@ -19,40 +19,42 @@ const Login = () => {
         for (let i of formData.entries()) {
             if (i[1] == "") {
                 // show error
-                setAlertData(["Fill in all the fields.", true, "ERROR"])
+                setAlert(["Fill in all the fields.", "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             }
         }
         setLoading(true)
-        const res = await fetch(getApiUrl() + "auth/login", {
+        const res = await fetch(getApiUrl("auth") + "login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email: formData.get("email")?.toString()!,
-                password: formData.get("password")?.toString()!
+                identifier: formData.get("email")?.toString()!,
+                password: formData.get("password")?.toString()!,
+                service: "CARDS",
+                sendData: true
             })
         })
         const data = await res.json()
         if (!res.ok) {
-            setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"]);
+            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true]);
             // convert from [{field: "email", message: "Email is already taken."}] to {email: "Email is already taken."}
             fieldErrors.set_array(data.field_errors)
             setLoading(false)
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
         } else {
             SH.set("user", data.data)
-            setAlertData(["Successfully logged in.", true, "SUCCESS"])
+            setAlert(["Successfully logged in.", "SUCCESS", true])
             fieldErrors.clear()
             setLoading(false)
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, 2000)
             location.href = "/account"
         }
@@ -60,7 +62,13 @@ const Login = () => {
 
     return (
         <div className="text-lg fc flex-col mt-[100px]">
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             <div className='text-2xl my-5'>Login</div>
             <form className='fc flex-col form'>
                 <input name="email" type="text" placeholder='Email' className='form-input' title="test" />

@@ -1,36 +1,46 @@
-import {
-    ExclamationCircleIcon,
-    CheckCircleIcon
-} from "@heroicons/react/20/solid"
+//import React from 'react'
+import { AlertData } from '../global/types'
+import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/20/solid'
 
 interface AlertProps {
-    message: string,
+    content: string
+    severity: "SUCCESS" | "ERROR"
     show: boolean,
-    severity: "SUCCESS" | "ERROR" | "NONE"
+    title?: string,
+    width?: string
 }
 
-const Alert = ({ message, show, severity }: AlertProps) => {
-
+const Alert = ({ content, severity, show, title, width = "100%" }: AlertProps) => {
     let colour = severity === "ERROR" ? "bg-error" : "bg-success"
 
+    return (
+        show ?
 
-    if (show) {
-        return (
-            <div className={`flex items-center bg-bgdark rounded-lg w-2/5 overflow-hidden`}>
-                <div className={colour + " self-start fc h-[50px] w-[50px] p-[5px]"}>
+            <div
+                className="flex items-center bg-bgdark rounded-md h-[87px] mb-[5px]"
+                style={{
+                    width: width
+                }}
+            >
+                <div className={colour + " fc h-full w-[50px] p-[5px] rounded-tl-md rounded-bl-md"}>
                     {
                         severity === "ERROR" ?
-                            <ExclamationCircleIcon className="h-7 w-7 m-[5px]" />
+                            <ExclamationCircleIcon className="size-7 m-[5px]" />
                             :
-                            <CheckCircleIcon className="h-7 w-7 m-[5px]" />
+                            <CheckCircleIcon className="size-7 m-[5px]" />
                     }
                 </div>
-                <div className={colour + " bg-opacity-60 self-center text-center w-full h-[50px] leading-[50px]"}>{message}</div>
+                <div className={colour + ' bg-opacity-60 flex flex-col w-full items-center py-[5px] px-[10px] rounded-tr-md rounded-br-md'}>
+                    <div className={"w-full h-[30px] text-xl"}>{title ? title : severity[0] + severity.slice(1).toLowerCase()}</div>
+                    <div className={"w-full h-[47px] text-md overflow-hidden flex items-center"}>{content}</div>
+                </div>
             </div>
-        )
-    } else {
-        return (<div className="hidden"></div>)
-    }
+
+            :
+            <div className='hidden'></div>
+    )
 }
 
 export default Alert
+
+export const alertReset: AlertData = ["Alert", "ERROR", false]

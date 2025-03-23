@@ -1,9 +1,25 @@
 import config from "../config.json"
 
-export function getApiUrl(): string {
-    if (location.origin.startsWith("http://localhost") || location.origin.startsWith("http://127.0.0.1")) {
-        return config.API_URL.DEV
+export function getApiUrl(type: "auth" | "cards"): string {
+    let env;
+
+    if (location.origin.includes("localhost") || location.origin.includes("127.0.0.1")) {
+        env = "dev"
     } else {
-        return config.API_URL.PROD
+        env = "prod"
+    }
+
+    if (type === "auth") {
+        if (env === "prod") {
+            return "https://auth.owen-services.eu.org/api/"
+        } else {
+            return "http://localhost:3000/api/"
+        }
+    } else {
+        if (env === "prod") {
+            return "https://cards-api.owen-services.eu.org/api/"
+        } else {
+            return "http://localhost:3005/api/"
+        }
     }
 }
