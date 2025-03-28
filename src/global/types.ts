@@ -16,7 +16,7 @@ export type Card = {
 export type DeckUser = {
     id: string,
     username: string,
-    flags: number,
+    perms: string[],
     updated_at: string
 }
 
@@ -71,8 +71,17 @@ export type Test = (WrittenQuestionT | MultipleChoiceQuestionT)[]
 export type User = {
     id: string,
     username: string,
-    flags: number,
-    updated_at: string
+    name: string,
+    email: string
+    perms: string[]
+    created_at: string
+}
+
+export type OtherUser = {
+    id: string,
+    username: string,
+    perms: string[]
+    created_at: string
 }
 
 export type CardCreate = {

@@ -40,7 +40,7 @@ const NavigationBar = () => {
 
     const logout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const res = await fetch(getApiUrl() + "auth/logout", {
+        const res = await fetch(getApiUrl("auth") + "logout", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -146,7 +146,7 @@ const NavigationBar = () => {
                                     <Menu.Item>
                                         <a
                                             className="flex items-center flex-row hover:bg-main px-[10px] py-[5px] rounded-lg"
-                                            href={"/user/" + SH.get("user").user.id}
+                                            href={"/user/" + SH.get("user").id}
                                         >
                                             <UserIcon className='h-5 w-5 mr-1' />
                                             Profile
@@ -245,7 +245,7 @@ const NavigationBar = () => {
                                     <Menu.Item>
                                         <a
                                             className="flex items-center flex-row hover:bg-main px-[10px] py-[5px] rounded-lg"
-                                            href={"/user/" + SH.get("user").user.id}
+                                            href={"/user/" + SH.get("user").id}
                                         >
                                             <UserIcon className='h-5 w-5 mr-1' />
                                             Profile

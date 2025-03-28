@@ -5,18 +5,17 @@ interface UsernameProps {
     mode?: "CAMO" | "NORMAL",
     username: string,
     classname?: string,
-    flag: number,
+    perms: string[],
     iconSize?: number
 }
 
-const Username = ({ mode = "NORMAL", username, classname, flag, iconSize = 5 }: UsernameProps) => {
+const Username = ({ mode = "NORMAL", username, classname, perms, iconSize = 5 }: UsernameProps) => {
     const newClassname = "flex items-center flex-row " + (classname ? classname : "")
     const newIconClassname = "h-" + iconSize + " w-" + iconSize + " text-admin"
-    const ADMIN_FLAG = 1
     const [hasAdmin, setHasAdmin] = React.useState<boolean>(false)
     // check for admin
     React.useEffect(() => {
-        if ((flag & ADMIN_FLAG) === ADMIN_FLAG) {
+        if (perms.includes("ADMIN")) {
             setHasAdmin(true)
         }
     }, [])

@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { Dialog, RadioGroup, Transition } from '@headlessui/react'
 
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
 import { Deck, Visibility } from "../../global/types"
@@ -21,7 +21,7 @@ import config from "../../config.json"
 
 const Create = () => {
 
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [fieldErrors] = React.useState<any>(new FieldErrors())
     const [metaData, setMetaData] = React.useState<{ name: string, topic: string, description: string }>({ name: "", topic: "", description: "" })
     const [tags, setTags] = React.useState<string[]>([])
@@ -65,9 +65,9 @@ const Create = () => {
         e.preventDefault()
 
         if (tags.length > 19) {
-            setAlertData(["You cannot have more than 20 tags for a deck.", true, "ERROR"])
+            setAlert(["You cannot have more than 20 tags for a deck.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -82,9 +82,9 @@ const Create = () => {
 
     const addCard = () => {
         if (cards.length > 255) {
-            setAlertData(["You cannot have more than 256 cards in a deck.", true, "ERROR"])
+            setAlert(["You cannot have more than 256 cards in a deck.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -104,9 +104,9 @@ const Create = () => {
 
     const removeCard = (index: number) => {
         if (cards.length < 2) {
-            setAlertData(["You must have at least one card in a deck.", true, "ERROR"])
+            setAlert(["You must have at least one card in a deck.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -152,7 +152,7 @@ const Create = () => {
         e.preventDefault()
 
         setLoading(true)
-        const res = await fetch(getApiUrl() + "decks/", {
+        const res = await fetch(getApiUrl("cards") + "decks/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -163,17 +163,17 @@ const Create = () => {
 
         const data = await res.json()
         if (!res.ok) {
-            setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
 
             fieldErrors.set_array(data.field_errors)
             setLoading(false)
 
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         } else {
-            setAlertData(["Successfully created deck.", true, "SUCCESS"])
+            setAlert(["Successfully created deck.", "SUCCESS", true])
             setLoading(false)
             SH.remove("create_deck_autosave")
             location.href = "/decks"
@@ -211,7 +211,13 @@ const Create = () => {
 
     return (
         <div className="fc flex-col pt-[10px]">
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             <div className="fc flex-col form w-3/5">
                 <div className="text-2xl mt-[10px] mb-[10px]">Create a new deck</div>
                 {autosavedDeck && <div className="text-textlight mb-[15px]">Previously autosaved deck</div>}

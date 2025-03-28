@@ -8,7 +8,6 @@ import { UserCircleIcon } from '@heroicons/react/20/solid'
 import Username from '../Username'
 import { getApiUrl } from '../../utils/api'
 import { User } from '../../global/types'
-import { deconstruct } from '../../utils/snowflake'
 import { AlertData } from '../../global/types'
 import AccountTab from './components/AccountTab'
 import HistoryTab from './components/HistoryTab'
@@ -41,8 +40,8 @@ const Dashboard = () => {
 
     const [width, setWidth] = React.useState<number>(window.innerWidth)
     // @ts-ignore
-    const [id, setId] = React.useState<string>(SH.get("user").user.id)
-    const [alertData, setAlertData] = React.useState<AlertData>(alertReset)
+    const [id, setId] = React.useState<string>(SH.get("user").id)
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [selectedTab, setSelectedTab] = React.useState<Tab>("ACCOUNT")
     const [user, setUser] = React.useState<User>()
 
@@ -56,18 +55,18 @@ const Dashboard = () => {
 
     React.useEffect(() => {
         const fetchUser = async () => {
-            const res = await fetch(getApiUrl("auth") + "users/@me", {
+            const res = await fetch(getApiUrl("auth") + "@me", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + SH.get("user").session.token
+                    "Authorization": "Bearer " + SH.get("user").token
                 }
             })
             let data = await res.json()
             if (!res.ok) {
-                setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+                setAlert([data.error ? data.error : data.message, "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
@@ -100,9 +99,9 @@ const Dashboard = () => {
                                 <div className='w-4/5 mb-[10px] '>
                                     <div className='flex items-center flex-row '>
                                         <UserCircleIcon className='h-[75px] w-[75px] mr-[10px]' />
-                                        <Username username={user.username} classname={'text-4xl'} flag={user.flags} iconSize={7} />
+                                        <Username username={user.username} classname={'text-4xl'} perms={user.perms} iconSize={7} />
                                     </div>
-                                    <div className='text-textlight'>Account created on {new Date(Number(deconstruct(user.id).timestamp)).toLocaleDateString()}</div>
+                                    <div className='text-textlight'>Account created on {user.created_at}</div>
                                 </div>
                                 <div className={
                                     width > COMPACT_WIDTH ?
@@ -136,25 +135,25 @@ const Dashboard = () => {
                                     {
                                         selectedTab === "ACCOUNT" &&
                                         <div className='w-full overflow-hidden'>
-                                            <AccountTab user={user} setAlertData={setAlertData} />
+                                            <AccountTab user={user} setAlertData={setAlert} />
                                         </div>
                                     }
                                     {
                                         selectedTab === "HISTORY" &&
                                         <div className='w-full'>
-                                            <HistoryTab user={user} setAlertData={setAlertData} />
+                                            <HistoryTab user={user} setAlertData={setAlert} />
                                         </div>
                                     }
                                     {
                                         selectedTab === "DECKS" &&
                                         <div className='w-full'>
-                                            <DecksTab user={user} setAlertData={setAlertData} />
+                                            <DecksTab user={user} setAlertData={setAlert} />
                                         </div>
                                     }
                                     {
                                         selectedTab === "FOLDERS" &&
                                         <div className='w-full'>
-                                            <FoldersTab user={user} setAlertData={setAlertData} />
+                                            <FoldersTab user={user} setAlertData={setAlert} />
                                         </div>
                                     }
                                 </div>

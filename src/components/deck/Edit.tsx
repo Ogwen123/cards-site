@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { RadioGroup } from '@headlessui/react'
 
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
 import { Deck, Visibility } from "../../global/types"
@@ -18,7 +18,7 @@ import config from "../../config.json"
 //import DescriptionWriter from '../DescriptionWriter'
 
 const Edit = () => {
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [fieldErrors] = React.useState<any>(new FieldErrors())
 
     const [tags, setTags] = React.useState<string[]>([])
@@ -35,9 +35,9 @@ const Edit = () => {
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-2)
         if (isNaN(parseInt(rawId!))) {
-            setAlertData(["The deck ID is invalid.", true, "ERROR"])
+            setAlert(["The deck ID is invalid.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -46,7 +46,7 @@ const Edit = () => {
 
     React.useEffect(() => {
         const fetchDeck = async () => {
-            const res = await fetch(getApiUrl() + "decks/" + id, {
+            const res = await fetch(getApiUrl("cards") + "decks/" + id, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -55,15 +55,15 @@ const Edit = () => {
             })
             let data = await res.json()
             if (!res.ok) {
-                setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+                setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
                 let deckData: Deck = data as Deck
-                if (deckData?.user.id !== SH.get("user").user.id) {
-                    setAlertData(["Unauthorised. You are not the owner of this deck.", true, "ERROR"])
+                if (deckData?.user.id !== SH.get("user").id) {
+                    setAlert(["Unauthorised. You are not the owner of this deck.", "ERROR", true])
                     return
                 }
 
@@ -108,9 +108,9 @@ const Edit = () => {
 
     const addCard = () => {
         if (cards.length > 255) {
-            setAlertData(["You cannot have more than 256 cards in a deck.", true, "ERROR"])
+            setAlert(["You cannot have more than 256 cards in a deck.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -130,9 +130,9 @@ const Edit = () => {
 
     const removeCard = (index: number) => {
         if (cards.length < 2) {
-            setAlertData(["You must have at least one card in a deck.", true, "ERROR"])
+            setAlert(["You must have at least one card in a deck.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -163,7 +163,7 @@ const Edit = () => {
         ]
 
         for (let i of rawData) {
-            if (i.value == "") setAlertData([`Fill in all the fields. ${i.name}`, true, "ERROR"])
+            if (i.value == "") setAlert([`Fill in all the fields. ${i.name}`, "ERROR", true])
             metaData[i.name] = i.value
         }
 
@@ -187,7 +187,7 @@ const Edit = () => {
         e.preventDefault()
         setLoading(true)
         autosave()
-        const res = await fetch(getApiUrl() + "decks/" + id, {
+        const res = await fetch(getApiUrl("cards") + "decks/" + id, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -198,17 +198,17 @@ const Edit = () => {
 
         const data = await res.json()
         if (!res.ok) {
-            setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
 
             fieldErrors.set_array(data.field_errors)
             setLoading(false)
 
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         } else {
-            setAlertData(["Successfully created deck.", true, "SUCCESS"])
+            setAlert(["Successfully created deck.", "SUCCESS", true])
             setLoading(false)
             SH.remove(config.autosave.edit_name + id)
             location.href = `/decks/${id}`
@@ -216,7 +216,13 @@ const Edit = () => {
     }
     return (
         <div className="fc flex-col pt-[10px]">
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             {
                 deck ?
                     <div className="fc flex-col form w-3/5">

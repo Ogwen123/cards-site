@@ -62,11 +62,11 @@ const DecksTab = ({ user, setAlertData }: DecksTabProps) => {
     }
 
     const fetchDecks = async (page: number) => {
-        const res = await fetch(getApiUrl() + "users/@me/decks", {
+        const res = await fetch(getApiUrl("cards") + "users/@me/decks", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + SH.get("user").session.token
+                "Authorization": "Bearer " + SH.get("user").token
             }
         })
         let data = await res.json()

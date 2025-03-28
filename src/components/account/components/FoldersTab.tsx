@@ -1,5 +1,6 @@
 import React from 'react'
 import { User } from '../../../global/types'
+import { alertReset } from '../../Alert'
 
 interface FoldersTabProps {
     user: User,
@@ -9,7 +10,7 @@ interface FoldersTabProps {
 const FoldersTab = ({ user, setAlertData }: FoldersTabProps) => {
 
     React.useEffect(() => {
-        setAlertData(["", false, "NONE"]) // ! remove
+        setAlertData(alertReset) // ! remove
     }, [])
 
     return (

@@ -3,14 +3,12 @@ import React from 'react'
 import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
-import { FieldErrors } from '../../utils/fieldError'
 import config from "../../config.json"
 import { AlertData } from '../../global/types'
 
 const Login = () => {
 
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
-    const [fieldErrors] = React.useState<FieldErrors>(new FieldErrors())
     const [loading, setLoading] = React.useState<boolean>(false)
 
     const submit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -43,7 +41,7 @@ const Login = () => {
         if (!res.ok) {
             setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true]);
             // convert from [{field: "email", message: "Email is already taken."}] to {email: "Email is already taken."}
-            fieldErrors.set_array(data.field_errors)
+
             setLoading(false)
             setTimeout(() => {
                 setAlert(alertReset)
@@ -51,7 +49,6 @@ const Login = () => {
         } else {
             SH.set("user", data.data)
             setAlert(["Successfully logged in.", "SUCCESS", true])
-            fieldErrors.clear()
             setLoading(false)
             setTimeout(() => {
                 setAlert(alertReset)
@@ -72,9 +69,7 @@ const Login = () => {
             <div className='text-2xl my-5'>Login</div>
             <form className='fc flex-col form'>
                 <input name="email" type="text" placeholder='Email' className='form-input' title="test" />
-                {fieldErrors.get("email") && <div className='text-error self-start text-sm'>{fieldErrors.get("email")}</div>}
                 <input name="password" type="password" placeholder='Password' className='form-input' />
-                {fieldErrors.get("password") && <div className='text-error self-start text-sm'>{fieldErrors.get("password")}</div>}
                 <button onClick={submit} className='button flex justify-center'>{loading ?
                     <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-bg" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />

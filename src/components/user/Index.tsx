@@ -1,7 +1,8 @@
 import React from 'react'
 import { Deck, User, AlertData, SortOption, SortOptionObj } from '../../global/types'
+import { SH } from '../../utils/storageHandler'
 import { getApiUrl } from '../../utils/api'
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import {
     ChevronDownIcon,
     UserCircleIcon,
@@ -27,7 +28,7 @@ const Index = () => {
     PER_PAGE
 
     const [id, setId] = React.useState<string>()
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [user, setUser] = React.useState<User>()
     const [userDecks, setUserDecks] = React.useState<Deck[][]>([])
     const [currentDecks, setCurrentDecks] = React.useState<Deck[]>([])
@@ -76,7 +77,7 @@ const Index = () => {
     }
 
     const fetchDecks = async (page: number) => {
-        const res = await fetch(getApiUrl() + "users/" + id + "/decks", {
+        const res = await fetch(getApiUrl("cards") + "users/" + id + "/decks", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -91,9 +92,9 @@ const Index = () => {
         })
         const data = await res.json()
         if (!res.ok) {
-            setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         } else {
@@ -107,9 +108,9 @@ const Index = () => {
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-1)
         if (isNaN(parseInt(rawId!))) {
-            setAlertData(["The deck ID is invalid.", true, "ERROR"])
+            setAlert(["The deck ID is invalid.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -118,18 +119,18 @@ const Index = () => {
 
     React.useEffect(() => {
         const fetchUser = async () => {
-            const res = await fetch(getApiUrl() + "users/" + id, {
+            const res = await fetch(getApiUrl("auth") + "users/" + id, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    //"Authorization": "Bearer " + SH.get("user").session.token
+                    "Authorization": "Bearer " + SH.get("user").token
                 }
             })
             const data = await res.json()
             if (!res.ok) {
-                setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+                setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
@@ -166,7 +167,7 @@ const Index = () => {
 
     React.useEffect(() => {
         if (!user) return
-        if ((user!.flags & ADMIN_FLAG) === ADMIN_FLAG) {
+        if (user.perms.includes("ADMIN")) {
             setBadges((prevBadges) => ([...prevBadges, "ADMIN"]))
         }
     }, [user])
@@ -186,16 +187,22 @@ const Index = () => {
 
     return (
         <div className='flex items-center flex-col py-[10px]'>
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             {
                 user ?
                     <div className='w-3/5'>
                         <div className='mb-[10px] '>
                             <div className='flex items-center flex-row '>
                                 <UserCircleIcon className='h-[75px] w-[75px] mr-[10px]' />
-                                <Username username={user.username} classname={'text-4xl'} flag={user.flags} iconSize={7} />
+                                <Username username={user.username} classname={'text-4xl'} perms={user.perms} iconSize={7} />
                             </div>
-                            <div className='text-textlight'>Account created on {new Date(Number(deconstruct(user.id).timestamp)).toLocaleDateString()}</div>
+                            <div className='text-textlight'>Account created on {user.created_at}</div>
                         </div>
                         {
                             badges.length > 0 &&

@@ -1,6 +1,7 @@
 //import React from 'react'
 import React from 'react'
 import { User } from '../../../global/types'
+import { alertReset } from '../../Alert'
 
 interface HistoryTabProps {
     user: User,
@@ -10,7 +11,7 @@ interface HistoryTabProps {
 const HistoryTab = ({ user, setAlertData }: HistoryTabProps) => {
 
     React.useEffect(() => {
-        setAlertData(["", false, "NONE"]) // ! remove
+        setAlertData(alertReset) // ! remove
     }, [])
 
     return (
