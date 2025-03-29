@@ -1,4 +1,4 @@
-export type Visibility = "public" | "private" | "unlisted"
+export type Visibility = "PUBLIC" | "PRIVATE" | "UNLISED"
 
 export const searchOptions = ["name", "topic", "tags", "description"] as const
 
@@ -40,7 +40,8 @@ export type DeckMeta = {
     description: string,
     visibility: Visibility,
     score: number,
-    updated_at: string
+    updated_at: string,
+    created_at: string
 }
 
 export type SearchResult = {

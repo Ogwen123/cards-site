@@ -13,7 +13,6 @@ import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
 import { Deck, Visibility } from "../../global/types"
-import { FieldErrors } from '../../utils/fieldError'
 import { CardCreate, AlertData } from '../../global/types'
 import config from "../../config.json"
 //import DescriptionWriter from '../DescriptionWriter'
@@ -22,11 +21,10 @@ import config from "../../config.json"
 const Create = () => {
 
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
-    const [fieldErrors] = React.useState<any>(new FieldErrors())
     const [metaData, setMetaData] = React.useState<{ name: string, topic: string, description: string }>({ name: "", topic: "", description: "" })
     const [tags, setTags] = React.useState<string[]>([])
     const [cards, setCards] = React.useState<CardCreate[]>([])
-    const [visibility, setVisibilty] = React.useState<Visibility>("public")
+    const [visibility, setVisibilty] = React.useState<Visibility>("PUBLIC")
     const [loading, setLoading] = React.useState<boolean>(false)
     const [settingUp, setSettingUp] = React.useState<boolean>(true)
     const [autosavedDeck, setAutosavedDeck] = React.useState<Deck>()
@@ -156,7 +154,7 @@ const Create = () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + SH.get("user").session.token
+                "Authorization": "Bearer " + SH.get("user").token
             },
             body: JSON.stringify(SH.get("create_deck_autosave"))
         })
@@ -165,7 +163,6 @@ const Create = () => {
         if (!res.ok) {
             setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
 
-            fieldErrors.set_array(data.field_errors)
             setLoading(false)
 
             setTimeout(() => {
@@ -231,7 +228,6 @@ const Create = () => {
                         defaultValue={autosavedDeck ? metaData.name : ""}
                     />
 
-                    {fieldErrors.get("name") && <div className="text-error self-start text-sm">{fieldErrors.get("name")}</div>}
 
                     <input
                         id="topic"
@@ -242,7 +238,6 @@ const Create = () => {
                         defaultValue={autosavedDeck ? metaData?.topic : ""}
                     />
 
-                    {fieldErrors.get("topic") && <div className="text-error self-start text-sm">{fieldErrors.get("topic")}</div>}
                     {/*<DescriptionWriter updateFunc={updateDescription} /> ill finish later™*/}
                     <textarea name="description" placeholder="Description" className="form-input h-[150px] resize-vertical" onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => { setMetaData((prevData) => ({ name: prevData?.name, topic: prevData?.topic, description: e.target.value })) }} defaultValue={autosavedDeck ? metaData?.description : ""} />
                 </div>
@@ -250,7 +245,7 @@ const Create = () => {
                     <RadioGroup.Label className="hidden">
                         Visibility
                     </RadioGroup.Label>
-                    <RadioGroup.Option value="public" className="w-[calc((100%/3)-5px)]">
+                    <RadioGroup.Option value="PUBLIC" className="w-[calc((100%/3)-5px)]">
                         {({ checked }) => (
                             <span
                                 className={checked ?
@@ -263,7 +258,7 @@ const Create = () => {
                             </span>
                         )}
                     </RadioGroup.Option>
-                    <RadioGroup.Option value="private" className="w-[calc((100%/3)-10px)]">
+                    <RadioGroup.Option value="PRIVATE" className="w-[calc((100%/3)-10px)]">
                         {({ checked }) => (
                             <span
                                 className={checked ?
@@ -276,7 +271,7 @@ const Create = () => {
                             </span>
                         )}
                     </RadioGroup.Option>
-                    <RadioGroup.Option value="unlisted" className="w-[calc((100%/3)-5px)]">
+                    <RadioGroup.Option value="UNLISTED" className="w-[calc((100%/3)-5px)]">
                         {({ checked }) => (
                             <span
                                 className={checked ?
@@ -290,7 +285,6 @@ const Create = () => {
                         )}
                     </RadioGroup.Option>
                 </RadioGroup>
-                {fieldErrors.get("visibility") && <div className="text-error self-start text-sm">{fieldErrors.get("visibility")}</div>}
                 <div
                     className='form-input w-full min-h-[58px] p-[5px] flex flex-wrap'
                 >
@@ -302,8 +296,6 @@ const Create = () => {
                     ))}
                     <input type="text" placeholder="Add Tags" onKeyDown={tagKeyPressHandler} className=' bg-bgdark outline-none h-[44px] mx-[5px] flex-1 min-w-[100px]' />
                 </div>
-                {fieldErrors.get("tags") && <div className="text-error self-start text-sm">{fieldErrors.get("tags")}</div>}
-                {tags.map((_tag, index) => fieldErrors.get(`tags.${index}`) && <div className="text-error self-start text-sm">{fieldErrors.get(`tags.${index}`).replace(`"tags[${index}]"`, `Tag ${index + 1}:`)}</div>)}
                 <div className='w-full'>
 
                     <div className='flex flex-row items-center'>
@@ -404,7 +396,6 @@ const Create = () => {
                                                     className='form-input-small w-full mr-[5px] my-[10px] border-hr'
                                                     defaultValue={changesMade ? card.front : ""}
                                                 />
-                                                {fieldErrors.get(`cards.${index}.front`) && <div className="text-error self-start text-sm">{fieldErrors.get(`cards.${index}.front`).replace(`"cards[${index}].front"`, "Front")}</div>}
                                             </div>
                                             <div className="w-1/2">
                                                 <input
@@ -415,7 +406,6 @@ const Create = () => {
                                                     className='form-input-small w-full ml-[5px] my-[10px] border-hr'
                                                     defaultValue={changesMade ? card.back : ""}
                                                 />
-                                                {fieldErrors.get(`cards.${index}.back`) && <div className="text-error self-start text-sm ml-[5px]">{fieldErrors.get(`cards.${index}.back`).replace(`"cards[${index}].back"`, "Back")}</div>}
                                             </div>
                                         </form>
                                     </div>

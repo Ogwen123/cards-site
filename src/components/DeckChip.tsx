@@ -1,7 +1,6 @@
 //import React from 'react'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { DeckMeta } from '../global/types'
-import { deconstruct } from '../utils/snowflake'
 
 interface DeckChipProps {
     deck: DeckMeta,
@@ -14,7 +13,7 @@ const DeckChip = ({ deck, score, width = 320 }: DeckChipProps) => {
         <div className={'bg-bgdark rounded-lg p-[20px] h-[300px] w-[' + width + 'px] flex flex-col justify-between'}>
             <p className='text-xl h-[33px] truncate'>{deck.name}</p>
             <div className='text-sm text-textlight'>{deck.topic}</div>
-            <div className='text-xs text-textlight'>{score && `Score: ${score} | `}ID: {deck.id} | {new Date(Number(deconstruct(deck.id).timestamp)).toLocaleString().split(", ")[0].replaceAll("/", "-")}</div>{/* this score is the score assigned by the search */}
+            <div className='text-xs text-textlight'>{score && `Score: ${score} | `}ID: {deck.id} | { }</div>{/* this score is the score assigned by the search */}
             <div className='my-[5px] bg-hr rounded-lg h-[2px]'></div>
             <div className='text-ellipsis text-sm h-[115px]'>{deck.description}</div>
             <div>

@@ -12,19 +12,17 @@ import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
 import { Deck, Visibility } from "../../global/types"
-import { FieldErrors } from '../../utils/fieldError'
 import { CardCreate, AlertData } from '../../global/types'
 import config from "../../config.json"
 //import DescriptionWriter from '../DescriptionWriter'
 
 const Edit = () => {
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
-    const [fieldErrors] = React.useState<any>(new FieldErrors())
 
     const [tags, setTags] = React.useState<string[]>([])
     const [cards, setCards] = React.useState<CardCreate[]>([])
     const [description, setDescription] = React.useState<string>("")
-    const [visibility, setVisibilty] = React.useState<Visibility>("public")
+    const [visibility, setVisibilty] = React.useState<Visibility>("PUBLIC")
 
     const [loading, setLoading] = React.useState<boolean>(false)
     const [id, setId] = React.useState<string>()
@@ -200,7 +198,6 @@ const Edit = () => {
         if (!res.ok) {
             setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
 
-            fieldErrors.set_array(data.field_errors)
             setLoading(false)
 
             setTimeout(() => {
@@ -237,8 +234,6 @@ const Edit = () => {
                                 onBlur={autosave}
                             />
 
-                            {fieldErrors.get("name") && <div className="text-error self-start text-sm">{fieldErrors.get("name")}</div>}
-
                             <input
                                 id="topic"
                                 type="text"
@@ -247,8 +242,6 @@ const Edit = () => {
                                 defaultValue={(originalDeck as Deck).topic}
                                 onBlur={autosave}
                             />
-
-                            {fieldErrors.get("topic") && <div className="text-error self-start text-sm">{fieldErrors.get("topic")}</div>}
 
                             {/*<DescriptionWriter updateFunc={updateDescription} /> ill finish later™*/}
                             <textarea
@@ -263,7 +256,7 @@ const Edit = () => {
                             <RadioGroup.Label className="hidden">
                                 Visibility
                             </RadioGroup.Label>
-                            <RadioGroup.Option value="public" className="w-[calc((100%/3)-5px)]">
+                            <RadioGroup.Option value="PUBLIC" className="w-[calc((100%/3)-5px)]">
                                 {({ checked }) => (
                                     <span
                                         className={checked ?
@@ -276,7 +269,7 @@ const Edit = () => {
                                     </span>
                                 )}
                             </RadioGroup.Option>
-                            <RadioGroup.Option value="private" className="w-[calc((100%/3)-10px)]">
+                            <RadioGroup.Option value="PRIVATE" className="w-[calc((100%/3)-10px)]">
                                 {({ checked }) => (
                                     <span
                                         className={checked ?
@@ -289,7 +282,7 @@ const Edit = () => {
                                     </span>
                                 )}
                             </RadioGroup.Option>
-                            <RadioGroup.Option value="unlisted" className="w-[calc((100%/3)-5px)]">
+                            <RadioGroup.Option value="UNLISTED" className="w-[calc((100%/3)-5px)]">
                                 {({ checked }) => (
                                     <span
                                         className={checked ?
@@ -303,7 +296,6 @@ const Edit = () => {
                                 )}
                             </RadioGroup.Option>
                         </RadioGroup>
-                        {fieldErrors.get("visibility") && <div className="text-error self-start text-sm">{fieldErrors.get("visibility")}</div>}
                         <div
                             className='form-input w-full min-h-[58px] p-[5px] flex flex-wrap'
                         >
@@ -320,8 +312,6 @@ const Edit = () => {
                             ))}
                             <input type="text" placeholder="Add Tags" onKeyDown={tagKeyPressHandler} className=' bg-bgdark outline-none h-[44px] mx-[5px] flex-1 min-w-[100px]' />
                         </div>
-                        {fieldErrors.get("tags") && <div className="text-error self-start text-sm">{fieldErrors.get("tags")}</div>}
-                        {tags.map((_tag, index) => fieldErrors.get(`tags.${index}`) && <div className="text-error self-start text-sm">{fieldErrors.get(`tags.${index}`).replace(`"tags[${index}]"`, `Tag ${index + 1}:`)}</div>)}
                         <div className='w-full'>
                             <div className='text-xl mt-[10px] mb-[15px]'>Add cards to the deck</div>
                             <div>
@@ -344,7 +334,6 @@ const Edit = () => {
                                                             className='form-input-small w-full mr-[5px] my-[10px] border-hr'
                                                             defaultValue={changesMade ? card.front : ""}
                                                         />
-                                                        {fieldErrors.get(`cards.${index}.front`) && <div className="text-error self-start text-sm">{fieldErrors.get(`cards.${index}.front`).replace(`"cards[${index}].front"`, "Front")}</div>}
                                                     </div>
                                                     <div className="w-1/2">
                                                         <input
@@ -355,7 +344,6 @@ const Edit = () => {
                                                             className='form-input-small w-full ml-[5px] my-[10px] border-hr'
                                                             defaultValue={changesMade ? card.back : ""}
                                                         />
-                                                        {fieldErrors.get(`cards.${index}.back`) && <div className="text-error self-start text-sm ml-[5px]">{fieldErrors.get(`cards.${index}.back`).replace(`"cards[${index}].back"`, "Back")}</div>}
                                                     </div>
                                                 </form>
                                             </div>

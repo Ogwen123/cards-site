@@ -1,5 +1,5 @@
 import React from 'react'
-import { Deck, User, AlertData, SortOption, SortOptionObj } from '../../global/types'
+import { User, AlertData, SortOption, SortOptionObj, DeckMeta } from '../../global/types'
 import { SH } from '../../utils/storageHandler'
 import { getApiUrl } from '../../utils/api'
 import Alert, { alertReset } from '../Alert'
@@ -17,21 +17,18 @@ import Username from '../Username'
 import DeckChip from '../DeckChip'
 import { Menu } from '@headlessui/react'
 import config from "../../config.json"
-import { deconstruct } from '../../utils/snowflake'
 
 type Badge = "ADMIN"
 
 const Index = () => {
 
-    const PER_PAGE = config.layout.profileDecksPerPage
-    const ADMIN_FLAG = config.flags.ADMIN
-    PER_PAGE
+    //const PER_PAGE = config.layout.profileDecksPerPage
 
     const [id, setId] = React.useState<string>()
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [user, setUser] = React.useState<User>()
-    const [userDecks, setUserDecks] = React.useState<Deck[][]>([])
-    const [currentDecks, setCurrentDecks] = React.useState<Deck[]>([])
+    const [userDecks, setUserDecks] = React.useState<DeckMeta[][]>([])
+    const [currentDecks, setCurrentDecks] = React.useState<DeckMeta[]>([])
     const [deckPage, setDeckPage] = React.useState<number>(0)
     const [sortOption, setSortOption] = React.useState<SortOptionObj>({ option: "RATING", alias: "Rating" })
     const [gridCols, setGridCols] = React.useState<string>(`repeat(${Math.floor((window.innerWidth * 0.6) / 340)}, minmax(0, 340px))`)
@@ -41,10 +38,10 @@ const Index = () => {
         if (`repeat(${Math.floor((window.innerWidth * 0.6) / 340)}, 340px)` !== gridCols) setGridCols(`repeat(${Math.floor((window.innerWidth * 0.6) / 340)}, 340px)`)
     })
 
-    const sortDecks = (by: SortOption, data: Deck[]): Deck[] => {
+    const sortDecks = (by: SortOption, data: DeckMeta[]): DeckMeta[] => {
         if (by === "RATING") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
                     return (d1.score < d2.score)
                         ? 1
                         : (d1.score > d2.score)
@@ -54,20 +51,20 @@ const Index = () => {
             return sortedData
         } else if (by === "NEWEST") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
-                    return (new Date(Number(deconstruct(d1.id).timestamp)).getTime() < new Date(d2.updated_at).getTime())
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                    return (new Date(d1.created_at).getTime() < new Date(d2.updated_at).getTime())
                         ? 1
-                        : (new Date(Number(deconstruct(d1.id).timestamp)).getTime() > new Date(d2.updated_at).getTime())
+                        : (new Date(d1.created_at).getTime() > new Date(d2.updated_at).getTime())
                             ? -1
                             : 0
                 });
             return sortedData
         } else if (by === "OLDEST") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
-                    return (new Date(Number(deconstruct(d1.id).timestamp)).getTime() > new Date(d2.updated_at).getTime())
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                    return (new Date(d1.created_at).getTime() > new Date(d2.updated_at).getTime())
                         ? 1
-                        : (new Date(Number(deconstruct(d1.id).timestamp)).getTime() < new Date(d2.updated_at).getTime())
+                        : (new Date(d1.created_at).getTime() < new Date(d2.updated_at).getTime())
                             ? -1
                             : 0
                 });
@@ -80,15 +77,8 @@ const Index = () => {
         const res = await fetch(getApiUrl("cards") + "users/" + id + "/decks", {
             method: "GET",
             headers: {
-                "Content-Type": "application/json",
-                //"Authorization": "Bearer " + SH.get("user").session.token
-            },
-            /*
-            body: JSON.stringify({
-                per_page: PER_PAGE,
-                page: userDecks.length + 1
-            })
-            */
+                "Content-Type": "application/json"
+            }
         })
         const data = await res.json()
         if (!res.ok) {

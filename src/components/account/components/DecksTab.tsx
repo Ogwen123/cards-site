@@ -1,11 +1,10 @@
 import React from 'react'
-import { Deck, SortOption, SortOptionObj, User } from '../../../global/types'
+import { DeckMeta, SortOption, SortOptionObj, User } from '../../../global/types'
 import { getApiUrl } from '../../../utils/api'
 import { SH } from '../../../utils/storageHandler'
 import config from "../../../config.json"
 import { Menu } from '@headlessui/react'
 import { ChevronDownIcon, StarIcon, BarsArrowUpIcon, BarsArrowDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
-import { deconstruct } from '../../../utils/snowflake'
 import DeckChip from '../../DeckChip'
 
 interface DecksTabProps {
@@ -15,8 +14,8 @@ interface DecksTabProps {
 
 const DecksTab = ({ user, setAlertData }: DecksTabProps) => {
 
-    const [userDecks, setUserDecks] = React.useState<Deck[][]>([[]])
-    const [currentDecks, setCurrentDecks] = React.useState<Deck[]>([])
+    const [userDecks, setUserDecks] = React.useState<DeckMeta[][]>([[]])
+    const [currentDecks, setCurrentDecks] = React.useState<DeckMeta[]>([])
     const [deckPage, setDeckPage] = React.useState<number>(0)
     const [sortOption, setSortOption] = React.useState<SortOptionObj>({ option: "RATING", alias: "Rating" })
     const [gridCols, setGridCols] = React.useState<string>(`repeat(${Math.floor((window.innerWidth * 0.8) / 340)}, minmax(0, 340px))`)
@@ -26,10 +25,10 @@ const DecksTab = ({ user, setAlertData }: DecksTabProps) => {
         if (`repeat(${Math.floor((window.innerWidth * 0.8) / 340)}, 340px)` !== gridCols) setGridCols(`repeat(${Math.floor((window.innerWidth * 0.8) / 340)}, 340px)`)
     })
 
-    const sortDecks = (by: SortOption, data: Deck[]): Deck[] => {
+    const sortDecks = (by: SortOption, data: DeckMeta[]): DeckMeta[] => {
         if (by === "RATING") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
                     return (d1.score < d2.score)
                         ? 1
                         : (d1.score > d2.score)
@@ -39,20 +38,20 @@ const DecksTab = ({ user, setAlertData }: DecksTabProps) => {
             return sortedData
         } else if (by === "NEWEST") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
-                    return (new Date(Number(deconstruct(d1.id).timestamp)).getTime() < new Date(d2.updated_at).getTime())
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                    return (new Date(d1.created_at).getTime() < new Date(d2.updated_at).getTime())
                         ? 1
-                        : (new Date(Number(deconstruct(d1.id).timestamp)).getTime() > new Date(d2.updated_at).getTime())
+                        : (new Date(d1.created_at).getTime() > new Date(d2.updated_at).getTime())
                             ? -1
                             : 0
                 });
             return sortedData
         } else if (by === "OLDEST") {
             let sortedData = data.sort(
-                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
-                    return (new Date(Number(deconstruct(d1.id).timestamp)).getTime() > new Date(d2.updated_at).getTime())
+                (d1: DeckMeta, d2: DeckMeta) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+                    return (new Date(d1.created_at).getTime() > new Date(d2.updated_at).getTime())
                         ? 1
-                        : (new Date(Number(deconstruct(d1.id).timestamp)).getTime() < new Date(d2.updated_at).getTime())
+                        : (new Date(d1.created_at).getTime() < new Date(d2.updated_at).getTime())
                             ? -1
                             : 0
                 });

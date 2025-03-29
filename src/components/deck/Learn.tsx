@@ -1,7 +1,7 @@
 import React from 'react'
 
 import config from "../../config.json"
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { Deck } from '../../global/types'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
@@ -35,7 +35,7 @@ const Learn = () => {
     const COMPACT_WIDTH = config.layout.compactWidth
 
     const [width, setWidth] = React.useState<number>(window.innerWidth)
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [deck, setDeck] = React.useState<Deck>()
     const [id, setId] = React.useState<string>()
 
@@ -50,9 +50,9 @@ const Learn = () => {
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-2)
         if (isNaN(parseInt(rawId!))) {
-            setAlertData(["The deck ID is invalid.", true, "ERROR"])
+            setAlert(["The deck ID is invalid.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -71,15 +71,15 @@ const Learn = () => {
                 headers["Authorization"] = "Bearer " + SH.get("user").session.token
             }
 
-            const res = await fetch(getApiUrl() + "decks/" + id, {
+            const res = await fetch(getApiUrl("cards") + "decks/" + id, {
                 method: "GET",
                 headers
             })
             const data = await res.json()
             if (!res.ok) {
-                setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+                setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
@@ -96,7 +96,13 @@ const Learn = () => {
 
     return (
         <div className='flex items-center flex-col py-[10px]'>
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             {
                 id ?
                     <div className='w-full'>
