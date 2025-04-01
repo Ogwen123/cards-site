@@ -72,13 +72,6 @@ const View = () => {
 
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-2)
-        if (isNaN(parseInt(rawId!))) {
-            setAlert(["The deck ID is invalid.", "ERROR", true])
-            setTimeout(() => {
-                setAlert(alertReset)
-            }, config.alertLength)
-            return
-        }
         setId(rawId)
     }, [])
 
@@ -91,7 +84,7 @@ const View = () => {
             }
 
             if (SH.get("user")) {
-                headers["Authorization"] = "Bearer " + SH.get("user").session.token
+                headers["Authorization"] = "Bearer " + SH.get("user").token
             }
 
             const res = await fetch(getApiUrl("cards") + "decks/" + id, {
@@ -100,13 +93,13 @@ const View = () => {
             })
             const data = await res.json()
             if (!res.ok) {
-                setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+                setAlert([data.error, "ERROR", true])
                 setTimeout(() => {
                     setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
-                setDeck(data)
+                setDeck(data.data)
             }
         }
 
@@ -144,7 +137,7 @@ const View = () => {
         })
         const data = await res.json()
         if (!res.ok) {
-            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+            setAlert([data.error, "ERROR", true])
             setTimeout(() => {
                 setAlert(alertReset)
             }, config.alertLength)
@@ -172,7 +165,7 @@ const View = () => {
         })
         const data = await res.json()
         if (!res.ok) {
-            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+            setAlert([data.error, "ERROR", true])
             setTimeout(() => {
                 setAlert(alertReset)
             }, config.alertLength)
@@ -233,7 +226,7 @@ const View = () => {
 
         const data = await res.json()
         if (!res.ok) {
-            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+            setAlert([data.error, "ERROR", true])
             setTimeout(() => {
                 setAlert(alertReset)
             }, config.alertLength)
