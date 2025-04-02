@@ -166,8 +166,8 @@ const NavigationBar = () => {
                         </div>
                         :
                         <div className="flex items-center justify-end text-2xl w-full">
-                            <a href="/account/register" className="mx-[10px] hover:text-main">Register</a>
-                            <a href="/account/login" className="mx-[10px] hover:text-main">Login</a>
+                            <a href="/account/register" className="mx-[10px] p-[8px] border-w2 rounded-md hover:shadow-md hover:border-white/15 hover:border-[2px] hover:p-[7px]">Register</a>
+                            <a href="/account/login" className="mx-[10px] p-[8px] border-w2 rounded-md hover:shadow-md hover:border-white/15 hover:border-[2px] hover:p-[7px]">Login</a>
                         </div>}
                 </div>
             </div>

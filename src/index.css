@@ -62,4 +62,12 @@ li + li {
   .mh-body {
     @apply min-h-[calc(100vh-98px)]
   }
+
+  .border-w {
+    @apply border border-solid border-white/5
+  }
+
+  .border-w2 {
+    @apply border border-solid border-white/10
+  }
 }

@@ -71,7 +71,7 @@ const Register = () => {
 
     return (
         <div className='gradient page-full fc overflow-y-auto'>
-            <div className='w-[calc(40%-40px)] min-w-[320px] bg-bg bg-opacity-90 border border-white/5 rounded-md shadow-3xl flex flex-col items-center justify-center pb-[30px] pt-[30px] mt-[30px]'>
+            <div className='w-[calc(40%-40px)] min-w-[320px] bg-bg bg-opacity-90 flex flex-col items-center justify-center pb-[30px] pt-[30px] mt-[30px]'>
 
                 <Alert
                     content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
@@ -81,7 +81,7 @@ const Register = () => {
                     width="80%"
                 />
                 <a href="/" className='gradienttext text-center text-4xl'>
-                    Tracker
+                    Cards
                 </a>
                 <div className=' text-subtext'>
                     Register a free account on Cards.
@@ -139,10 +139,10 @@ const Register = () => {
                 />
 
                 <div className='text-subtext'>
-                    <div className={(details.password.length >= 8 ? "text-success/85" : "text-subtext")}>• 8 or more characters in length</div>
-                    <div className={(/(?=.*[A-Z])/.test(details.password) ? "text-success/85" : "text-subtext")}>• At least 1 uppercase letter</div>
-                    <div className={(/(?=.*[a-z])/.test(details.password) ? "text-success/85" : "text-subtext")}>• At least 1 lowercase letter</div>
-                    <div className={(/(?=.*[\d])/.test(details.password) ? "text-success/85" : "text-subtext")}>• At least 1 digit</div>
+                    <div className={(details.password.length >= 8 ? "text-success/85" : "text-subtext")}>8 or more characters in length</div>
+                    <div className={(/(?=.*[A-Z])/.test(details.password) ? "text-success/85" : "text-subtext")}>At least 1 uppercase letter</div>
+                    <div className={(/(?=.*[a-z])/.test(details.password) ? "text-success/85" : "text-subtext")}>At least 1 lowercase letter</div>
+                    <div className={(/(?=.*[\d])/.test(details.password) ? "text-success/85" : "text-subtext")}>At least 1 digit</div>
                 </div>
 
                 <button
