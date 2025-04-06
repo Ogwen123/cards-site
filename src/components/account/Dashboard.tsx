@@ -7,7 +7,7 @@ import config from "../../config.json"
 import { UserCircleIcon } from '@heroicons/react/20/solid'
 import Username from '../Username'
 import { getApiUrl } from '../../utils/api'
-import { User } from '../../global/types'
+import { DeckMeta, User } from '../../global/types'
 import { AlertData } from '../../global/types'
 import AccountTab from './components/AccountTab'
 import HistoryTab from './components/HistoryTab'
@@ -44,7 +44,6 @@ const Dashboard = () => {
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [selectedTab, setSelectedTab] = React.useState<Tab>("ACCOUNT")
     const [user, setUser] = React.useState<User>()
-
     window.addEventListener("resize", () => {
         if (width > COMPACT_WIDTH && window.innerWidth < COMPACT_WIDTH) {
             setWidth(window.innerWidth)
@@ -132,30 +131,24 @@ const Dashboard = () => {
                                     }
                                 </div>
                                 <div className='fc flex-col w-4/5'>
-                                    {
-                                        selectedTab === "ACCOUNT" &&
-                                        <div className='w-full overflow-hidden'>
-                                            <AccountTab user={user} setAlertData={setAlert} />
-                                        </div>
-                                    }
-                                    {
-                                        selectedTab === "HISTORY" &&
-                                        <div className='w-full'>
-                                            <HistoryTab user={user} setAlertData={setAlert} />
-                                        </div>
-                                    }
-                                    {
-                                        selectedTab === "DECKS" &&
-                                        <div className='w-full'>
-                                            <DecksTab user={user} setAlertData={setAlert} />
-                                        </div>
-                                    }
-                                    {
-                                        selectedTab === "FOLDERS" &&
-                                        <div className='w-full'>
-                                            <FoldersTab user={user} setAlertData={setAlert} />
-                                        </div>
-                                    }
+                                    <div className='w-full overflow-hidden' hidden={selectedTab !== "ACCOUNT"}>
+                                        <AccountTab user={user} setAlertData={setAlert} />
+                                    </div>
+
+                                    <div className='w-full' hidden={selectedTab !== "HISTORY"}>
+                                        <HistoryTab user={user} setAlertData={setAlert} />
+                                    </div>
+
+                                    <div className='w-full' hidden={selectedTab !== "DECKS"}>
+                                        <DecksTab
+                                            user={user}
+                                            setAlertData={setAlert}
+                                        />
+                                    </div>
+
+                                    <div className='w-full' hidden={selectedTab !== "FOLDERS"}>
+                                        <FoldersTab user={user} setAlertData={setAlert} />
+                                    </div>
                                 </div>
                             </div>
                             :

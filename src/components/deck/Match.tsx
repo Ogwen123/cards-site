@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react'
 import { title } from '../../utils/string'
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { Deck, AlertData } from '../../global/types'
+import { SH } from '../../utils/storageHandler'
 import { Dialog, Transition } from '@headlessui/react'
 import config from "../../config.json"
 
@@ -36,7 +37,7 @@ const Match = () => {
     const [width, setWidth] = React.useState<number>(window.innerWidth)
     const [deck, setDeck] = React.useState<Deck>()
     const [id, setId] = React.useState<string>()
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
 
     const [dimensions, setDimensions] = React.useState<[number, number]>([4, 4])
     const [cards, setCards] = React.useState<Chip[]>([])
@@ -64,34 +65,27 @@ const Match = () => {
 
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-2)
-        if (isNaN(parseInt(rawId!))) {
-            setAlertData(["The deck ID is invalid.", true, "ERROR"])
-            setTimeout(() => {
-                setAlertData(["", false, "NONE"])
-            }, config.alertLength)
-            return
-        }
         setId(rawId!)
     }, [])
 
     React.useEffect(() => {
         const fetchDeck = async () => {
-            const res = await fetch(getApiUrl() + "decks/" + id, {
+            const res = await fetch(getApiUrl("cards") + "decks/" + id, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    //"Authorization": "Bearer " + SH.get("user").session.token
+                    "Authorization": "Bearer " + SH.get("user").token
                 }
             })
             let data = await res.json()
             if (!res.ok) {
-                setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+                setAlert([data.error, "ERROR", true])
                 setTimeout(() => {
-                    setAlertData(["", false, "NONE"])
+                    setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
-                data = data as Deck
+                data = data.data as Deck
                 setDeck(data)
                 setCards([])
                 if (data.cards.length >= 2) {
@@ -175,7 +169,13 @@ const Match = () => {
 
     return (
         <div className='flex items-center flex-col py-[10px]'>
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             {
                 id ?
                     <div className='w-full'>

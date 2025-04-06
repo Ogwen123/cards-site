@@ -346,7 +346,7 @@ const View = () => {
                                                     deck.tags.map((val, index) => {
                                                         return (
                                                             <div className={`bg-hr rounded-lg p-[5px] mx-[5px] ${index === 0 ? "ml-[0px]" : ""}`} key={index}>
-                                                                {val.replaceAll("-", " ")}
+                                                                {val.name.replace(/-/g, " ")}
                                                             </div>
                                                         )
                                                     })

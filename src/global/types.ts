@@ -13,6 +13,12 @@ export type Card = {
     updated_at: string
 }
 
+export type Tag = {
+    id: string,
+    name: string,
+    deck: string
+}
+
 export type DeckUser = {
     id: string,
     username: string,
@@ -28,7 +34,7 @@ export type Deck = {
     visibility: Visibility,
     score: number,
     updated_at: string,
-    tags: string[],
+    tags: Tag[],
     cards: Card[],
     user: DeckUser
 }
