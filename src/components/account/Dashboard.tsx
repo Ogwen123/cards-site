@@ -7,7 +7,7 @@ import config from "../../config.json"
 import { UserCircleIcon } from '@heroicons/react/20/solid'
 import Username from '../Username'
 import { getApiUrl } from '../../utils/api'
-import { DeckMeta, User } from '../../global/types'
+import { User } from '../../global/types'
 import { AlertData } from '../../global/types'
 import AccountTab from './components/AccountTab'
 import HistoryTab from './components/HistoryTab'

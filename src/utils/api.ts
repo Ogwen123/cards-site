@@ -1,5 +1,3 @@
-import config from "../config.json"
-
 export function getApiUrl(type: "auth" | "cards"): string {
     let env;
 

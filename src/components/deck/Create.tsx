@@ -12,7 +12,7 @@ import { Dialog, RadioGroup, Transition } from '@headlessui/react'
 import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
-import { Deck, Visibility } from "../../global/types"
+import { DeckDraft, Visibility } from "../../global/types"
 import { CardCreate, AlertData } from '../../global/types'
 import config from "../../config.json"
 //import DescriptionWriter from '../DescriptionWriter'
@@ -27,16 +27,16 @@ const Create = () => {
     const [visibility, setVisibilty] = React.useState<Visibility>("PUBLIC")
     const [loading, setLoading] = React.useState<boolean>(false)
     const [settingUp, setSettingUp] = React.useState<boolean>(true)
-    const [autosavedDeck, setAutosavedDeck] = React.useState<Deck>()
+    const [autosavedDeck, setAutosavedDeck] = React.useState<DeckDraft>()
     const [changesMade, setChangesMade] = React.useState<boolean>(false)
     const [openImportDialog, setOpenImportDialog] = React.useState<boolean>(false)
     const [importDialogError, setImportDialogError] = React.useState<[boolean, string]>([false, ""])
     const [importedText, setImportedText] = React.useState<string>()
 
     React.useEffect(() => {
-        let deckData: Deck | null = SH.get("create_deck_autosave")
+        let deckData: DeckDraft | null = SH.get("create_deck_autosave")
         if (!deckData) { setSettingUp(false); return }
-        deckData = deckData as Deck
+        deckData = deckData as DeckDraft
 
         setTags(deckData.tags)
         const cards = []

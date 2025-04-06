@@ -39,6 +39,19 @@ export type Deck = {
     user: DeckUser
 }
 
+export type DeckDraft = {
+    id: string,
+    name: string,
+    topic: string,
+    description: string,
+    visibility: Visibility,
+    score: number,
+    updated_at: string,
+    tags: string[],
+    cards: Card[],
+    user: DeckUser
+}
+
 export type DeckMeta = {
     id: string,
     name: string,

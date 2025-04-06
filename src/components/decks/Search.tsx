@@ -9,7 +9,7 @@ import {
 
 import { Navigate } from "react-router-dom"
 import URI from "../../utils/uri"
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import {
     SearchResult,
@@ -31,7 +31,7 @@ const Search = () => {
 
     const [selectedOption, setSelectedOption] = React.useState<{ id: number, option: SearchOption }>(searchOptions[0])
     const [loading, setLoading] = React.useState<boolean>(true)
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [results, setResults] = React.useState<SearchResult[]>([])
 
     const uriParams = new URI(location.href)
@@ -55,7 +55,7 @@ const Search = () => {
         } else {
             tags.push(term.trim().replaceAll(" ", "-"))
         }
-        const res = await fetch(getApiUrl() + "decks/search", {
+        const res = await fetch(getApiUrl("cards") + "decks/search", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -66,9 +66,9 @@ const Search = () => {
         const data = await res.json()
 
         if (!res.ok) {
-            setAlertData([data.error ? data.error : data.field_errors[0].message, true, "ERROR"])
+            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             setLoading(false)
             return
@@ -95,9 +95,9 @@ const Search = () => {
         e.preventDefault()
         const term = new FormData(e.currentTarget.parentElement as HTMLFormElement).get("search")?.toString()!
         if (term === "") {
-            setAlertData(["Make sure you enter something in the search bar.", true, "ERROR"])
+            setAlert(["Make sure you enter something in the search bar.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, 500000)
             return
         }
@@ -113,7 +113,13 @@ const Search = () => {
     if (uriParams.hasParams(["term", "option"]) && uriParams.get("term") !== "" && uriParams.get("option") !== "") {
         return (
             <div className='fc flex-col py-[10px]'>
-                <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+                <Alert
+                    content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                    severity={alert[1]}
+                    show={alert[2]}
+                    title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                    width="80%"
+                />
                 <div className='w-full'>{/* search bar */}
                     <form className='my-[10px]'>
                         <div className='fc flex-row'>

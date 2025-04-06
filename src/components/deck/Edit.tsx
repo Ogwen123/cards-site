@@ -11,7 +11,7 @@ import { RadioGroup } from '@headlessui/react'
 import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import { SH } from '../../utils/storageHandler'
-import { Deck, Visibility } from "../../global/types"
+import { Deck, DeckDraft, Visibility } from "../../global/types"
 import { CardCreate, AlertData } from '../../global/types'
 import config from "../../config.json"
 //import DescriptionWriter from '../DescriptionWriter'
@@ -26,8 +26,8 @@ const Edit = () => {
 
     const [loading, setLoading] = React.useState<boolean>(false)
     const [id, setId] = React.useState<string>()
-    const [originalDeck, setOriginalDeck] = React.useState<Deck>()
-    const [deck, setDeck] = React.useState<Deck>()
+    const [originalDeck, setOriginalDeck] = React.useState<DeckDraft>()
+    const [deck, setDeck] = React.useState<DeckDraft>()
     const [changesMade, setChangesMade] = React.useState<boolean>(false)
 
     React.useEffect(() => {
@@ -53,20 +53,18 @@ const Edit = () => {
             })
             let data = await res.json()
             if (!res.ok) {
-                setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+                setAlert([data.error, "ERROR", true])
                 setTimeout(() => {
                     setAlert(alertReset)
                 }, config.alertLength)
                 return
             } else {
-                let deckData: Deck = data as Deck
-                if (deckData?.user.id !== SH.get("user").id) {
-                    setAlert(["Unauthorised. You are not the owner of this deck.", "ERROR", true])
-                    return
-                }
+                let rawDeckData: Deck = data as Deck
+
+                let deckData: DeckDraft = { ...rawDeckData, tags: rawDeckData.tags.map((tag, _) => tag.name) }
 
                 if (SH.get(config.autosave.edit_name + id) !== null) {
-                    deckData = SH.get(config.autosave.edit_name + id) as Deck
+                    deckData = SH.get(config.autosave.edit_name + id) as DeckDraft
                 }
 
                 setTags(deckData.tags)
@@ -223,14 +221,14 @@ const Edit = () => {
             {
                 deck ?
                     <div className="fc flex-col form w-3/5">
-                        <div className="text-2xl mt-[10px] mb-[15px] flex flex-row">Edit <div className='text-textlight ml-[7px]'>{(originalDeck as Deck).name}</div></div>
+                        <div className="text-2xl mt-[10px] mb-[15px] flex flex-row">Edit <div className='text-textlight ml-[7px]'>{(originalDeck as DeckDraft).name}</div></div>
                         <div id="info" className="w-full flex flex-col" >{/* form for general info (name, topic, etc) */}
                             <input
                                 id="name"
                                 type="text"
                                 placeholder='Enter a name'
                                 className='form-input'
-                                defaultValue={(originalDeck as Deck).name}
+                                defaultValue={(originalDeck as DeckDraft).name}
                                 onBlur={autosave}
                             />
 
@@ -239,7 +237,7 @@ const Edit = () => {
                                 type="text"
                                 placeholder='Topic/Subject'
                                 className='form-input'
-                                defaultValue={(originalDeck as Deck).topic}
+                                defaultValue={(originalDeck as DeckDraft).topic}
                                 onBlur={autosave}
                             />
 

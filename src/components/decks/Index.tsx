@@ -7,7 +7,7 @@ import {
     CheckIcon,
     ChevronDownIcon
 } from '@heroicons/react/20/solid'
-import Alert from '../Alert'
+import Alert, { alertReset } from '../Alert'
 import config from "../../config.json"
 import { AlertData } from '../../global/types'
 
@@ -22,7 +22,7 @@ const Index = () => {
         { id: 4, option: "description" },
     ]
 
-    const [alertData, setAlertData] = React.useState<AlertData>(["", false, "NONE"])
+    const [alert, setAlert] = React.useState<AlertData>(alertReset)
     const [selectedOption, setSelectedOption] = React.useState<{ id: number, option: Option }>(searchOptions[0])
     const [loading, setLoading] = React.useState<boolean>(false)
 
@@ -37,9 +37,9 @@ const Index = () => {
 
         const term = new FormData(e.currentTarget.parentElement as HTMLFormElement).get("search")?.toString()!
         if (term === "") {
-            setAlertData(["Make sure you enter something in the search bar.", true, "ERROR"])
+            setAlert(["Make sure you enter something in the search bar.", "ERROR", true])
             setTimeout(() => {
-                setAlertData(["", false, "NONE"])
+                setAlert(alertReset)
             }, config.alertLength)
             return
         }
@@ -52,7 +52,13 @@ const Index = () => {
     return (
         <div className='fc flex-col py-[10px]'>
             {/*<PermAlert message={"Degraded searching performace due to server locations."} margin={alertData[1]} /> the margin thing is to add margin to the bottom if another alert is showing */}
-            <Alert message={alertData[0]} show={alertData[1]} severity={alertData[2]} />
+            <Alert
+                content={alert[0] instanceof Array ? alert[0][1] : alert[0]}
+                severity={alert[1]}
+                show={alert[2]}
+                title={alert[0] instanceof Array ? alert[0][0] : undefined}
+                width="80%"
+            />
             <div className='w-full'>{/* search bar */}
                 <form className='my-[10px]'>
                     <div className='fc flex-row'>
