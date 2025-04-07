@@ -12,9 +12,9 @@ import URI from "../../utils/uri"
 import Alert, { alertReset } from '../Alert'
 import { getApiUrl } from '../../utils/api'
 import {
-    SearchResult,
-    SearchOption,
-    AlertData
+    AlertData,
+    Deck,
+    DeckMeta
 } from '../../global/types'
 import DeckChip from '../DeckChip'
 import config from "../../config.json"
@@ -22,38 +22,37 @@ import config from "../../config.json"
 
 const Search = () => {
 
-    const searchOptions: { id: number, option: SearchOption }[] = [
-        { id: 0, option: "name" },
-        { id: 1, option: "topic" },
-        { id: 2, option: "tags" },
-        { id: 3, option: "description" },
-    ]
+    const searchOptions: string[] = ["name", "topic", "tags", "description"]
 
-    const [selectedOption, setSelectedOption] = React.useState<{ id: number, option: SearchOption }>(searchOptions[0])
+    const [selectedOption, setSelectedOption] = React.useState<string>(searchOptions[0])
     const [loading, setLoading] = React.useState<boolean>(true)
     const [alert, setAlert] = React.useState<AlertData>(alertReset)
-    const [results, setResults] = React.useState<SearchResult[]>([])
+    const [results, setResults] = React.useState<DeckMeta[]>([])
 
     const uriParams = new URI(location.href)
 
     React.useEffect(() => {
         if (uriParams.hasParams(["term", "option"])) {
-            search(uriParams.get("term")!, uriParams.get("option")!)
+            setSelectedOption(searchOptions.includes(uriParams.get("option")!) ? uriParams.get("option")! : searchOptions[0])
+
+            search(uriParams.get("term") || "", uriParams.get("option") || "name")
         }
     }, [])
 
     const search = async (term: string, option: string) => {
         let body: { [key: string]: string | string[] } = {}
+        let tags = []
         if (option !== "tags") {
             body[option] = term
-        }
-        let tags = []
-        if (selectedOption.option === "tags") {
-            for (let i of term.split(",")) {
-                tags.push(i.trim().replaceAll(" ", "-"))
-            }
         } else {
-            tags.push(term.trim().replaceAll(" ", "-"))
+            if (selectedOption === "tags") {
+                for (let i of term.split(",")) {
+                    tags.push(i.trim().replaceAll(" ", "-"))
+                }
+            } else {
+                tags.push(term.trim().replaceAll(" ", "-"))
+            }
+            body.tags = tags
         }
         const res = await fetch(getApiUrl("cards") + "decks/search", {
             method: "POST",
@@ -61,30 +60,28 @@ const Search = () => {
                 "Content-Type": "application/json",
                 //"Authorization": "Bearer " + SH.get("user").session.token
             },
-            body: JSON.stringify({ ...body, "tags": tags })
+            body: JSON.stringify(body)
         })
         const data = await res.json()
 
         if (!res.ok) {
-            setAlert([data.error ? data.error : data.field_errors[0].message, "ERROR", true])
+            setAlert([data.error, "ERROR", true])
             setTimeout(() => {
                 setAlert(alertReset)
             }, config.alertLength)
             setLoading(false)
             return
         } else {
-            let sortedData = data.sort(
-                (d1: SearchResult, d2: SearchResult) => { // sort by match score, if they have equal match score sort by upvote/downvote score
+            console.log("got results")
+            console.log(data.data)
+            let sortedData = data.data.sort(
+                (d1: Deck, d2: Deck) => { // sort by match score, if they have equal match score sort by upvote/downvote score
                     return (d1.score < d2.score)
                         ? 1
                         : (d1.score > d2.score)
-                            ? -1
-                            : (d1.deck.score < d2.deck.score)
-                                ? 1
-                                : (d1.deck.score > d2.deck.score)
-                                    ? -1
-                                    : 0
+                            ? -1 : 0
                 });
+            console.log(sortedData)
             setResults(sortedData)
             setLoading(false)
         }
@@ -106,7 +103,7 @@ const Search = () => {
         }
         setLoading(true)
         const encodedTerm = encodeURIComponent(term)
-        const encodedOption = encodeURIComponent(selectedOption.option)
+        const encodedOption = encodeURIComponent(selectedOption)
         location.href = "/decks/search?term=" + encodedTerm + "&option=" + encodedOption
     }
 
@@ -126,25 +123,25 @@ const Search = () => {
                             <Listbox
                                 as="div"
                                 value={selectedOption}
-                                onChange={setSelectedOption}
+                                onChange={(val: string) => setSelectedOption(searchOptions.filter((opt) => { return opt === val })[0])}
                                 className="h-[49px] w-[130px] mb-[5px]"
                             >
                                 <Listbox.Button
                                     className="bg-bgdark hover:bg-main fc flex-row h-full w-full rounded-l-lg"
                                 >
-                                    {title(selectedOption.option)}
+                                    {title(selectedOption)}
                                     <ChevronDownIcon className='h-5 w-5' />
                                 </Listbox.Button>
                                 <Listbox.Options className="absolute z-1 top-[172px] left-[10px] bg-bgdark p-[20px] rounded-lg">
                                     {searchOptions.map((option) => (
                                         <Listbox.Option
-                                            key={option.id}
+                                            key={option}
                                             value={option}
                                             className="hover:bg-maindark rounded-lg p-[5px] pr-[15px] flex flex-row"
                                         >
                                             <div className='fc'>
-                                                {option.id === selectedOption.id ? <CheckIcon className='h-5 w-5 mr-[5px]' /> : <div className='w-5 h-5 mr-[5px]'></div>}</div>
-                                            {title(option.option)}
+                                                {option === selectedOption ? <CheckIcon className='h-5 w-5 mr-[5px]' /> : <div className='w-5 h-5 mr-[5px]'></div>}</div>
+                                            {title(option)}
                                             <div className='w-5 h-5 mr-[5px]'></div>
                                         </Listbox.Option>
                                     ))}
@@ -153,7 +150,7 @@ const Search = () => {
                             <input name="search" type="text" placeholder='Search for decks' className='form-input mb-[5px] mt-0 w-full h-[49px] rounded-l-none' defaultValue={uriParams.get("term")!} />
                         </div>
                         {
-                            selectedOption.option === "tags" ?
+                            selectedOption === "tags" ?
                                 <div className='text-xs opacity-75'>Seperate multiple tags using commas</div>
                                 :
                                 <div></div>
@@ -179,7 +176,7 @@ const Search = () => {
                                     results.map((deck, index) => {
                                         return (
                                             <div key={index} className='mr-[40px] my-[10px]'>
-                                                <DeckChip deck={deck.deck} score={deck.score} />
+                                                <DeckChip deck={deck} />
                                             </div>
                                         )
                                     })

@@ -23,7 +23,7 @@ export type DeckUser = {
     id: string,
     username: string,
     perms: string[],
-    updated_at: string
+    created_at: string
 }
 
 export type Deck = {

@@ -4,16 +4,15 @@ import { DeckMeta } from '../global/types'
 
 interface DeckChipProps {
     deck: DeckMeta,
-    score?: number,
     width?: number
 }
 
-const DeckChip = ({ deck, score, width = 320 }: DeckChipProps) => {
+const DeckChip = ({ deck, width = 320 }: DeckChipProps) => {
     return (
         <div className={'bg-bgdark rounded-lg p-[20px] h-[300px] w-[' + width + 'px] flex flex-col justify-between'}>
             <p className='text-xl h-[33px] truncate'>{deck.name}</p>
             <div className='text-sm text-textlight'>{deck.topic}</div>
-            <div className='text-xs text-textlight'>{score && `Score: ${score} | `}ID: {deck.id} | { }</div>{/* this score is the score assigned by the search */}
+            <div className='text-xs text-textlight'>ID: {deck.id} { }</div>{/* this score is the score assigned by the search */}
             <div className='my-[5px] bg-hr rounded-lg h-[2px]'></div>
             <div className='text-ellipsis text-sm h-[115px]'>{deck.description}</div>
             <div>
