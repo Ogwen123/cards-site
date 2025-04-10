@@ -125,3 +125,9 @@ export type Details = {
     email: string,
     password: string
 }
+
+export type Note = {
+    content: string,
+    changed: boolean,
+    card: Card
+}

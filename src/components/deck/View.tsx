@@ -9,25 +9,18 @@ import {
     ShareIcon,
     FolderPlusIcon,
     PencilIcon,
-    BookmarkIcon,
-    XCircleIcon
+    XCircleIcon,
+    CheckCircleIcon
 } from '@heroicons/react/20/solid'
 import Alert, { alertReset } from '../Alert'
 import { title } from '../../utils/string'
-import { Card, Deck, AlertData } from '../../global/types'
+import { Card, Deck, AlertData, Note } from '../../global/types'
 import { getApiUrl } from '../../utils/api'
 import { isLoggedIn } from '../../utils/account'
 import { Dialog, Transition } from '@headlessui/react'
 import { SH } from '../../utils/storageHandler'
 import Username from '../Username'
 import config from "../../config.json"
-
-type Note = {
-    id: string,
-    content: string,
-    changed: boolean,
-    card: Card
-}
 
 const View = () => {
     const tabs = [
@@ -208,18 +201,19 @@ const View = () => {
 
         const body: { front: string, back: string, note?: string } = {
             front: note.card.front,
-            back: note.card.back
+            back: note.card.back,
+            note: note.content
         }
 
-        if (note.changed === true) {
-            body.note = note.content
+        if (note.changed !== true) {
+            return
         }
 
-        const res = await fetch(getApiUrl("cards") + "cards/" + note.id, {
+        const res = await fetch(getApiUrl("cards") + "cards/" + note.card.id, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + SH.get("user").session.token
+                "Authorization": "Bearer " + SH.get("user").token
             },
             body: JSON.stringify(body)
         })
@@ -502,7 +496,7 @@ const View = () => {
                                                                             SH.get("user") &&
                                                                             <div className='w-1/2 flex justify-end'>
                                                                                 {
-                                                                                    currentNote && currentNote.id === card.id ?
+                                                                                    currentNote && currentNote.card.id === card.id ?
                                                                                         <div>
                                                                                             <button
                                                                                                 onClick={() => {
@@ -517,14 +511,13 @@ const View = () => {
                                                                                                     setCurrentNote(undefined)
                                                                                                 }}
                                                                                             >
-                                                                                                <BookmarkIcon className='h-4 w-4 hover:text-main text-textlight' />
+                                                                                                <CheckCircleIcon className='h-4 w-4 hover:text-main text-textlight' />
                                                                                             </button>
                                                                                         </div>
                                                                                         :
                                                                                         <button
                                                                                             onClick={() => {
                                                                                                 setCurrentNote({
-                                                                                                    id: card.id,
                                                                                                     content: card.note ? card.note : "",
                                                                                                     changed: false,
                                                                                                     card: card
@@ -559,7 +552,7 @@ const View = () => {
                                                                     }
                                                                 </div>
                                                                 {
-                                                                    currentNote && currentNote.id === card.id &&
+                                                                    currentNote && currentNote.card.id === card.id &&
                                                                     <div>
 
                                                                         <textarea
@@ -568,6 +561,13 @@ const View = () => {
                                                                             onChange={(e) => {
                                                                                 const note = currentNote
                                                                                 note.changed = true
+                                                                                if (e.target.value.length > 2048) {
+                                                                                    setAlert(["Max length for a note is 2048 characters.", "ERROR", true])
+                                                                                    setTimeout(() => {
+                                                                                        setAlert(alertReset)
+                                                                                    }, config.alertLength)
+                                                                                    return
+                                                                                }
                                                                                 note.content = e.target.value
                                                                                 setCurrentNote(note)
                                                                             }}

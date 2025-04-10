@@ -30,15 +30,12 @@ const Edit = () => {
     const [deck, setDeck] = React.useState<DeckDraft>()
     const [changesMade, setChangesMade] = React.useState<boolean>(false)
 
+    const asn = () => { // autosave name
+        return config.autosave.edit_name + id
+    }
+
     React.useEffect(() => {
         const rawId = location.href.split("/").at(-2)
-        if (isNaN(parseInt(rawId!))) {
-            setAlert(["The deck ID is invalid.", "ERROR", true])
-            setTimeout(() => {
-                setAlert(alertReset)
-            }, config.alertLength)
-            return
-        }
         setId(rawId)
     }, [])
 
@@ -48,7 +45,7 @@ const Edit = () => {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + SH.get("user").session.token
+                    "Authorization": "Bearer " + SH.get("user").token
                 }
             })
             let data = await res.json()
@@ -59,12 +56,17 @@ const Edit = () => {
                 }, config.alertLength)
                 return
             } else {
-                let rawDeckData: Deck = data as Deck
+                let rawDeckData: Deck = data.data as Deck
+
+                if (SH.get("user").id !== rawDeckData.user.id) {
+                    setAlert(["You are not the owner of this deck!", "ERROR", true])
+                }
 
                 let deckData: DeckDraft = { ...rawDeckData, tags: rawDeckData.tags.map((tag, _) => tag.name) }
 
-                if (SH.get(config.autosave.edit_name + id) !== null) {
-                    deckData = SH.get(config.autosave.edit_name + id) as DeckDraft
+                if (SH.get(asn()) !== null) {
+                    console.log("getting from ls")
+                    deckData = SH.get(asn()) as DeckDraft
                 }
 
                 setTags(deckData.tags)
@@ -80,7 +82,7 @@ const Edit = () => {
                 setDescription(deckData.description)
                 setOriginalDeck(deckData)
                 setDeck(deckData)
-                SH.set(config.autosave.edit_name + id, deckData)
+                SH.set(asn(), deckData)
             }
         }
 
@@ -114,6 +116,8 @@ const Edit = () => {
     }
 
     const editCard = (e: React.ChangeEvent<HTMLInputElement>, part: "TERM" | "DEFINITION", cardNum: number) => {
+        console.log("runnign autosave");
+
         e.preventDefault()
         const tempCards = cards
         if (part === "TERM") {
@@ -163,7 +167,7 @@ const Edit = () => {
             metaData[i.name] = i.value
         }
 
-        SH.set(config.autosave.edit_name + id, {
+        SH.set(asn(), {
             name: metaData.name,
             topic: metaData.topic,
             description: metaData.description,
@@ -176,6 +180,8 @@ const Edit = () => {
 
     // useEffect to trigger autosave
     React.useEffect(() => {
+        console.log("doing autosave");
+
         autosave()
     }, [cards, tags, description, visibility])
 
@@ -189,7 +195,7 @@ const Edit = () => {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + SH.get("user").session.token
             },
-            body: JSON.stringify(SH.get(config.autosave.edit_name + id))
+            body: JSON.stringify(SH.get(asn()))
         })
 
         const data = await res.json()
